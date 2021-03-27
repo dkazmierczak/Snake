@@ -3,7 +3,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Random;
 
-public class GamePanel extends JPanel implements ActionListener {
+
+/**
+ * The class Game panel extends J panel implements action listener, mouse listener
+ */
+public class GamePanel extends JPanel implements ActionListener, MouseListener {
 
     static final int SCREEN_WIDTH = 1300;
     static final int SCREEN_HEIGHT = 750;
@@ -20,6 +24,8 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean running = false;
     Timer timer;
     Random random;
+    private FontMetrics playAgainMetrics = getFontMetrics(new Font("Ink Free",Font.BOLD, 40));
+    private Color playColor = new Color(0, 153, 255);
 
     GamePanel(){
         random = new Random();
@@ -27,30 +33,48 @@ public class GamePanel extends JPanel implements ActionListener {
         this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
+        this.addMouseListener(this);
         startGame();
     }
 
+
+    /**
+     *
+     * Start game
+     *
+     */
     public void startGame() {
+
         newApple();
         running = true;
         timer = new Timer(DELAY,this);
         timer.start();
     }
 
+
+    /**
+     *
+     * Paint component
+     *
+     * @param g  the g
+     */
     public void paintComponent(Graphics g) {
+
         super.paintComponent(g);
         draw(g);
     }
 
+
+    /**
+     *
+     * Draw
+     *
+     * @param g  the g
+     */
     public void draw(Graphics g) {
 
+
         if(running) {
-
-			for(int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
-				g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
-				g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
-			}
-
             g.setColor(Color.red);
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
 
@@ -64,8 +88,8 @@ public class GamePanel extends JPanel implements ActionListener {
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
             }
-            g.setColor(Color.red);
-            g.setFont( new Font("Ink Free",Font.BOLD, 40));
+            g.setColor(Color.RED);
+            g.setFont(new Font("Ink Free",Font.BOLD, 40));
             FontMetrics metrics = getFontMetrics(g.getFont());
             g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
         }
@@ -75,15 +99,31 @@ public class GamePanel extends JPanel implements ActionListener {
 
     }
 
+
+    /**
+     *
+     * New apple
+     *
+     */
     public void newApple(){
+
         appleX = random.nextInt(SCREEN_WIDTH/UNIT_SIZE)*UNIT_SIZE;
         appleY = random.nextInt(SCREEN_HEIGHT/UNIT_SIZE)*UNIT_SIZE;
     }
 
+
+    /**
+     *
+     * Move
+     *
+     */
     public void move(){
+
         for(int i = bodyParts; i > 0; i--) {
-            x[i] = x[i-1];
-            y[i] = y[i-1];
+            if (running) {
+                x[i] = x[i - 1];
+                y[i] = y[i - 1];
+            }
         }
 
         switch(direction) {
@@ -103,7 +143,14 @@ public class GamePanel extends JPanel implements ActionListener {
 
     }
 
+
+    /**
+     *
+     * Check apple
+     *
+     */
     public void checkApple() {
+
         if((x[0] == appleX) && (y[0] == appleY)) {
             bodyParts++;
             applesEaten++;
@@ -111,7 +158,14 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+
+    /**
+     *
+     * Check collisions
+     *
+     */
     public void checkCollisions() {
+
         //checks if head collides with body
         for(int i = bodyParts; i > 0; i--) {
             if((x[0] == x[i]) && (y[0] == y[i])) {
@@ -140,7 +194,15 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+
+    /**
+     *
+     * Game over
+     *
+     * @param g  the g
+     */
     public void gameOver(Graphics g) {
+
         //Score
         g.setColor(Color.red);
         g.setFont(new Font("Ink Free",Font.BOLD, 40));
@@ -151,9 +213,21 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font("Ink Free",Font.BOLD, 75));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics2.stringWidth("Game Over")) / 2, SCREEN_HEIGHT / 2);
+        //Play again button
+        g.setColor(playColor);
+        g.setFont(new Font("Ink Free",Font.BOLD, 40));
+        g.drawString("Play Again", (SCREEN_WIDTH - playAgainMetrics.stringWidth("Play Again")) / 2, SCREEN_HEIGHT / 3 * 2);
     }
 
+
+    /**
+     *
+     * Action performed
+     *
+     * @param e  the e
+     */
     public void actionPerformed(ActionEvent e) {
+
 
         if(running) {
             move();
@@ -163,9 +237,88 @@ public class GamePanel extends JPanel implements ActionListener {
         repaint();
     }
 
+
+    /**
+     *
+     * Mouse clicked
+     *
+     * @param e  the e
+     */
+    public void mouseClicked(MouseEvent e) {
+
+        int startDrawingPlayAgainX = (SCREEN_WIDTH - playAgainMetrics.stringWidth("Play Again")) / 2;
+        int startDrawingPlayAgainY = SCREEN_HEIGHT / 3 * 2;
+
+        if (!running) {
+            if (e.getX() >= startDrawingPlayAgainX
+                    && e.getX() <= startDrawingPlayAgainX + playAgainMetrics.stringWidth("Play Again")
+                    && e.getY() <= startDrawingPlayAgainY + playAgainMetrics.getHeight()
+                    && e.getY() >= startDrawingPlayAgainY - playAgainMetrics.getHeight()
+            ) {
+                GameFrame frame = new GameFrame();
+            }
+        }
+    }
+
+
+    /**
+     *
+     * Mouse pressed
+     *
+     * @param e  the e
+     */
+    public void mousePressed(MouseEvent e) {
+
+
+    }
+
+
+    /**
+     *
+     * Mouse released
+     *
+     * @param e  the e
+     */
+    public void mouseReleased(MouseEvent e) {
+
+
+    }
+
+
+    /**
+     *
+     * Mouse entered
+     *
+     * @param e  the e
+     */
+    public void mouseEntered(MouseEvent e) {
+
+
+    }
+
+
+    /**
+     *
+     * Mouse exited
+     *
+     * @param e  the e
+     */
+    public void mouseExited(MouseEvent e) {
+
+
+    }
+
     public class MyKeyAdapter extends KeyAdapter{
         @Override
+
+/**
+ *
+ * Key pressed
+ *
+ * @param e  the e
+ */
         public void keyPressed(KeyEvent e) {
+
             switch(e.getKeyCode()) {
                 case KeyEvent.VK_LEFT:
                     if(direction != 'R') {

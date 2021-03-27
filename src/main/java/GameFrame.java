@@ -1,5 +1,9 @@
 import javax.swing.*;
 
+
+/**
+ * The class Game frame extends J frame
+ */
 public class GameFrame extends JFrame {
 
     GameFrame() {
